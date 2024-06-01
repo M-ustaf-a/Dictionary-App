@@ -1,35 +1,86 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
+import { React, useState } from "react";
+import Axios from "axios";
+import "./App.css";
+import { FaSearch } from "react-icons/fa";
+import { FcSpeaker } from "react-icons/fc";
+ 
 function App() {
-  const [count, setCount] = useState(0)
-
+  // Setting up the initial states using react hook 'useState'
+ 
+  const [data, setData] = useState("");
+  const [searchWord, setSearchWord] = useState("");
+ 
+  // Function to fetch information on button 
+  // click, and set the data accordingly
+  function getMeaning() {
+    Axios.get(
+      `https://api.dictionaryapi.dev/api/v2/entries/en_US/${searchWord}`
+    ).then((response) => {
+      setData(response.data[0]);
+    });
+  }
+ 
+  // Function to play and listen the 
+  // phonetics of the searched word
+  function playAudio() {
+    let audio = new Audio(data.phonetics[0].audio);
+    audio.play();
+  }
+ 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+    <div className="App">
+      <h1>Free Dictionary</h1>
+      <div className="searchBox">
+ 
+        {/* Taking user input */}
+        <input
+          type="text"
+          placeholder="Search..."
+          onChange={(e) => {
+            setSearchWord(e.target.value);
+          }}
+        />
+        <button
+          onClick={() => {
+            getMeaning();
+          }}
+        >
+          <FaSearch size="20px" />
         </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      {data && (
+        <div className="showResults">
+          <h2>
+            {data.word}{" "}
+            <button
+              onClick={() => {
+                playAudio();
+              }}
+            >
+              <FcSpeaker size="26px" />
+            </button>
+          </h2>
+          <h4>Parts of speech:</h4>
+ 
+           
+<p>{data.meanings[0].partOfSpeech}</p>
+ 
+ 
+          <h4>Definition:</h4>
+ 
+           
+<p>{data.meanings[0].definitions[0].definition}</p>
+ 
+ 
+          <h4>Example:</h4>
+ 
+           
+<p>{data.meanings[0].definitions[0].example}</p>
+ 
+        </div>
+      )}
+    </div>
+  );
 }
-
-export default App
+ 
+export default App;
